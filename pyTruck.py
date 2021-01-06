@@ -1,6 +1,5 @@
 max_load = float(input('What is the maximum carry load of the truck:  '))
 boxes = list()
-load = list()
 
 # asks for valid inputfor max load and weight of each item to load
 while True:
@@ -13,6 +12,7 @@ while True:
         box = float(box)
     except ValueError:
         print('Please input a valid number value')
+        continue
     if box > max_load:
         print('We\'re gonna need a bigger truck!\nCannot add item')
         continue
@@ -21,38 +21,42 @@ while True:
     elif box <= 0.0:
         print('Not a valid value\nCannot add item')
 
-boxes.sort()
+# test values
+# boxes = [12, 6, 6, 2, 4, 3, 4, 1, 3]
+# max_load = 12
+
+boxes.sort(reverse=True)
 print(f'\nMax carry load: {max_load}, items: {boxes}\n')
 
-# trys to greedy add largest array first from largest to smallest weights
-# if sum of array is more than max load then function will try a smaller array with lightest item removed first
-def add_load(max_load, boxes):
-    add_load = []
-    temp_load = []
-    for i in range(0,len(boxes)):
-        if sum(boxes[i:]) <= max_load:
-            add_load.append(boxes[i:])
-            break
-    print(add_load)
-    return add_load
+#greedy matches and then adds load
+def add_load():
+    tmp_boxes = list()
+    
+    while len(boxes) > 0 or sum(tmp_boxes) != max_load:
+        for item in boxes:
+            if item + sum(tmp_boxes) < max_load:
+                tmp_boxes.append(item)
+            elif item + sum(tmp_boxes) == max_load:
+                tmp_boxes.append(item)
+                break
+        break
+    for value in tmp_boxes:
+        if value in boxes:
+            boxes.remove(value)
 
-# start add load function and remove corresponding item from boxes
-def remove_boxes():
-    removed_boxes = add_load(max_load, boxes)
-    removed_boxes = (removed_boxes[0])
-    for item in removed_boxes:
-        boxes.remove(item)
-    return boxes
+    return tmp_boxes
+
 
 # main function wrapper, while there are boxes remove largest array and increase count
 def load_count():
     count = 0
-    while boxes:
-        remove_boxes()
+
+    while len(boxes) > 0:
+        print(add_load())
         count += 1
+
+    # print(count)
     return count
 
-print(f'Amount of times to load truck:  {load_count()}')
 
-# need to iterate not just with adjacent value but all remaining values, not true greedy algorithm
-# change add load function
+print(f'Amount of times to load truck:  {load_count()}')
